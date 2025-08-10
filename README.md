@@ -1,29 +1,13 @@
 # Wersti.github.io
 
-This repository contains a **simple and static personal website** for Wersti.
+Welcome to **Wersti.github.io**, my personal portfolio website.
 
-## Project Structure
+This is a simple, clean, and static website designed to showcase a bit about me, highlight some of my projects, and provide an easy way to get in touch. The site features:
 
-- `index.html` – the home page  
-- `about.html` – about me page  
-- `projects.html` – projects showcase  
-- `contact.html` – contact information  
-- `css/style.css` – basic styling  
-- `js/main.js` – scripts for interactivity
+- A brief introduction and background about me  
+- A curated selection of projects I've worked on  
+- Contact information for collaboration or inquiries  
 
-## Publishing
+Feel free to explore and learn more about my work and interests.
 
-To publish this website using GitHub Pages:
-
-1. Commit these files to your repo’s root directory (for a **user site**)  
-   or to the `docs/` folder (for a **project site**).
-2. Push your changes to GitHub.
-3. Enable GitHub Pages under **Settings → Pages** (if not already enabled).
-4. Access your website at:
-   - User site: [https://wersti.github.io/](https://wersti.github.io/)  
-
----
-
-This site is designed as a straightforward portfolio to showcase personal projects, skills, and contact details.
-
-**Visit the live website:** [https://wersti.github.io/](https://wersti.github.io/)
+**Visit the site:** [https://wersti.github.io/](https://wersti.github.io/)
