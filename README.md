@@ -21,7 +21,6 @@ To publish this website using GitHub Pages:
 3. Enable GitHub Pages under **Settings → Pages** (if not already enabled).
 4. Access your website at:
    - User site: [https://wersti.github.io/](https://wersti.github.io/)  
-   - Project site: `https://wersti.github.io/<repo-name>/`
 
 ---
 
