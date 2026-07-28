@@ -1,0 +1,491 @@
+@import 'tailwindcss';
+
+/* Fonts are declared by hand rather than importing the fontsource index,
+   which pulls 12 subsets (cyrillic, greek, vietnamese...) for an
+   English-language site. Latin only: two files instead of twelve. */
+@font-face {
+  font-family: 'Inter Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('@fontsource-variable/inter/files/inter-latin-wght-normal.woff2')
+    format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url('@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2')
+    format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ==========================================================================
+   Design tokens
+
+   Two levels of indirection, the pattern worth stealing from well-built
+   design systems: numeric primitive scales first, then semantic aliases that
+   components actually consume. Recolouring the site means editing the
+   semantic layer, never the components.
+   ========================================================================== */
+
+@theme {
+  /* --- Level 1: primitives ---------------------------------------------- */
+
+  /* Ink: near-black blues, the canvas */
+  --color-ink-50: #f4f7f9;
+  --color-ink-100: #e3eaef;
+  --color-ink-200: #c3d0da;
+  --color-ink-300: #93a7b5;
+  --color-ink-400: #647c8d;
+  --color-ink-500: #46596a;
+  --color-ink-600: #33434f;
+  --color-ink-700: #24303a;
+  --color-ink-800: #18212a;
+  --color-ink-900: #10171e;
+  --color-ink-950: #0a0f14;
+  --color-ink-1000: #060a0d;
+
+  /* Accent: electric cyan — signal colour, used sparingly */
+  --color-signal-100: #d3fbff;
+  --color-signal-200: #a5f5ff;
+  --color-signal-300: #6aeaff;
+  --color-signal-400: #2ed9f7;
+  --color-signal-500: #0fbede;
+  --color-signal-600: #0898b5;
+  --color-signal-700: #0b7590;
+  --color-signal-800: #0e5c72;
+
+  /* Warm counterpoint, for the rare second accent */
+  --color-ember-300: #ffd7a8;
+  --color-ember-400: #ffb765;
+
+  /* --- Level 2: semantics ----------------------------------------------- */
+  --color-surface: var(--color-ink-950);
+  --color-surface-raised: var(--color-ink-900);
+  --color-surface-overlay: var(--color-ink-800);
+  --color-border-subtle: #ffffff14;
+  --color-border-strong: #ffffff26;
+
+  /* Body text at #93a7b5 on #0a0f14 measures ~8.2:1 — comfortably past AA.
+     Muted at #647c8d still clears 4.5:1 for non-essential copy. */
+  --color-text-primary: var(--color-ink-50);
+  --color-text-secondary: var(--color-ink-300);
+  --color-text-muted: var(--color-ink-400);
+  --color-text-accent: var(--color-signal-300);
+
+  /* --- Type ------------------------------------------------------------- */
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+
+  /* Fluid scale — no media queries needed for type */
+  --text-display: clamp(2.75rem, 1.2rem + 7vw, 7rem);
+  --text-h1: clamp(2.25rem, 1.2rem + 4.5vw, 4.5rem);
+  --text-h2: clamp(1.75rem, 1.1rem + 2.6vw, 3rem);
+  --text-h3: clamp(1.25rem, 1rem + 1.1vw, 1.75rem);
+  --text-lead: clamp(1.05rem, 0.98rem + 0.5vw, 1.3rem);
+
+  /* --- Motion ----------------------------------------------------------- */
+  /* One easing and one duration for almost everything. Consistency reads as
+     craft; a grab-bag of curves reads as accident. */
+  --ease-brand: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --duration-base: 450ms;
+  --duration-fast: 200ms;
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-text-secondary);
+    font-family: var(--font-sans);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3 {
+    color: var(--color-text-primary);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Visible, on-brand focus ring for keyboard users */
+  :focus-visible {
+    outline: 2px solid var(--color-signal-400);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background: var(--color-signal-400);
+    color: var(--color-ink-1000);
+  }
+}
+
+/* ==========================================================================
+   Components
+   ========================================================================== */
+
+@layer components {
+  .shell {
+    width: 100%;
+    max-width: 78rem;
+    margin-inline: auto;
+    padding-inline: clamp(1.25rem, 4vw, 3rem);
+  }
+
+  /* Skip link — visible only once focused */
+  .skip-link {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    translate: -50% -150%;
+    z-index: 100;
+    padding: 0.75rem 1.25rem;
+    background: var(--color-signal-400);
+    color: var(--color-ink-1000);
+    font-weight: 600;
+    border-radius: 0 0 0.5rem 0.5rem;
+    transition: translate var(--duration-fast) var(--ease-brand);
+  }
+  .skip-link:focus {
+    translate: -50% 0;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-text-accent);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.6rem;
+    border-radius: 0.6rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition:
+      background-color var(--duration-fast) var(--ease-brand),
+      border-color var(--duration-fast) var(--ease-brand),
+      color var(--duration-fast) var(--ease-brand),
+      translate var(--duration-fast) var(--ease-brand);
+  }
+
+  .btn-primary {
+    background: var(--color-signal-300);
+    color: var(--color-ink-1000);
+  }
+  .btn-primary:hover {
+    background: var(--color-signal-200);
+    translate: 0 -2px;
+  }
+  /* Press state. A button that lifts on hover but does nothing on click feels
+     unresponsive; sinking past the resting position sells the press. */
+  .btn:active {
+    translate: 0 1px;
+    transition-duration: 60ms;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--color-text-primary);
+    border-color: var(--color-border-strong);
+  }
+  .btn-ghost:hover {
+    background: var(--color-surface-overlay);
+    border-color: var(--color-signal-600);
+    translate: 0 -2px;
+  }
+
+  .card {
+    position: relative;
+    isolation: isolate;
+    background: var(--color-surface-raised);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 1rem;
+    padding: 1.75rem;
+    /* Defaults so the spotlight sits harmlessly off-centre until JS (or the
+       :hover rule) takes over. Registered below with @property so they can be
+       interpolated instead of snapping. */
+    --spot-x: 50%;
+    --spot-y: -20%;
+    --spot-opacity: 0;
+    transition:
+      border-color var(--duration-base) var(--ease-brand),
+      translate var(--duration-base) var(--ease-brand);
+  }
+
+  /* Pointer-following spotlight — the detail that reads as craft on Linear and
+     Vercel. Drawn in a pseudo-element so it composites on its own layer and
+     never repaints the card's text. Position comes from two custom properties
+     set by one shared pointermove listener, so hover costs no layout work. */
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: var(--spot-opacity);
+    transition: opacity var(--duration-base) var(--ease-brand);
+    background: radial-gradient(
+      18rem circle at var(--spot-x) var(--spot-y),
+      color-mix(in oklab, var(--color-signal-500) 16%, transparent),
+      transparent 70%
+    );
+  }
+
+  .card:hover {
+    border-color: var(--color-border-strong);
+    translate: 0 -4px;
+  }
+  /* Keyboard users get the spotlight too, centred — otherwise the affordance
+     exists only for pointers. */
+  .card:focus-within {
+    border-color: var(--color-border-strong);
+    --spot-opacity: 1;
+    --spot-x: 50%;
+    --spot-y: 40%;
+  }
+}
+
+/* Registering the coordinates as <length-percentage> lets the browser
+   interpolate them; unregistered custom properties are strings and would jump.
+   Must live outside @layer — @property is not a style rule. */
+@property --spot-x {
+  syntax: '<length-percentage>';
+  inherits: false;
+  initial-value: 50%;
+}
+@property --spot-y {
+  syntax: '<length-percentage>';
+  inherits: false;
+  initial-value: -20%;
+}
+
+/* ==========================================================================
+   Utilities
+   ========================================================================== */
+
+@layer utilities {
+  /* Scroll-driven reveal. Native CSS where supported — zero JS, no layout
+     thrash. `animation-timeline: view()` ships in Chrome/Edge/Safari.
+     The @supports guard means non-supporting browsers just show content
+     immediately rather than leaving it stuck at opacity 0 — the failure
+     mode the old stylesheet had. */
+  /* Every scroll-driven rule below uses animation longhands, never the
+     `animation` shorthand.
+     Two reasons, both load-bearing:
+       1. The shorthand resets animation-timeline to `auto`. A minifier that
+          reorders declarations can move it after `animation-timeline: view()`
+          and silently kill the effect — which is exactly what happened here:
+          the built CSS came out as `animation: linear both name view()`, the
+          timeline was reset, and nothing animated at all.
+       2. Longhands cannot be collapsed into that shorthand, so the built
+          output keeps the same meaning as the source. */
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation-name: reveal-in;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 5% cover 32%;
+    }
+
+    /* Staggered variant. A scroll-driven animation's progress is its position
+       in the viewport, not elapsed time, so animation-delay does nothing here —
+       the stagger has to come from shifting each item's animation-range. Items
+       later in a row start their reveal further into the scroll, which is what
+       produces the cascade. --i is set inline from the loop index. */
+    .reveal-stagger {
+      animation-name: reveal-in;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry calc(5% + var(--i, 0) * 7%) cover
+        calc(32% + var(--i, 0) * 7%);
+    }
+  }
+
+  @keyframes reveal-in {
+    from {
+      opacity: 0;
+      translate: 0 2.5rem;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+
+  /* ------------------------------------------------------------------------
+     Parallax
+
+     Driven by `animation-timeline: view()`, not a scroll event listener. The
+     animation's progress *is* the element's position in the viewport, so the
+     browser runs it on the compositor and it stays exact at any scroll speed —
+     trackpad momentum, scrollbar drags, and find-in-page jumps all included.
+     A JS scroll handler samples after the fact and always lags.
+
+     The alternative — a `perspective` container with layers on Z — is real 3D
+     but requires making the document its own scroll container, which breaks the
+     sticky nav, `position: fixed`, and cross-document view transitions.
+
+     Depth is set per element with --depth: how far it travels, in viewport
+     heights, over one full pass. Negative values move against the scroll.
+     ------------------------------------------------------------------------ */
+  @supports (animation-timeline: view()) {
+    .parallax {
+      animation-name: parallax-shift;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      /* Covers the element's entire transit of the viewport, so the drift is
+         continuous rather than starting or stopping mid-screen. */
+      animation-range: cover 0% cover 100%;
+      will-change: translate;
+    }
+  }
+
+  @keyframes parallax-shift {
+    from {
+      translate: 0 calc(var(--depth, 0.1) * 50vh);
+    }
+    to {
+      translate: 0 calc(var(--depth, 0.1) * -50vh);
+    }
+  }
+
+  /* Scroll-linked hero departure. Tied to the hero's own exit range rather
+     than a timer, so it tracks the scroll position exactly and reverses when
+     you scroll back up — something a JS scroll listener only approximates.
+     Runs entirely on the compositor: no scroll handler, no main-thread work. */
+  @supports (animation-timeline: view()) {
+    .hero-depart {
+      animation-name: hero-depart;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      /* Starts only once the hero begins leaving the top of the viewport, so
+         nothing moves while the visitor is still reading it. */
+      animation-range: exit-crossing 0% exit-crossing 100%;
+    }
+  }
+
+  @keyframes hero-depart {
+    from {
+      opacity: 1;
+      scale: 1;
+      /* `none`, not `saturate(1)`: the minifier strips the redundant argument
+         and emits the invalid `saturate()`, which voids the declaration. */
+      filter: none;
+    }
+    to {
+      opacity: 0.15;
+      scale: 0.88;
+      filter: saturate(0.35);
+    }
+  }
+
+  /* Subtle film grain, applied as an overlay */
+  .grain::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+}
+
+/* ==========================================================================
+   Reduced motion
+
+   Honoured globally. Animation is decoration here, never the only carrier of
+   meaning, so it is safe to remove entirely.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal,
+  .reveal-stagger {
+    animation: none;
+    opacity: 1;
+    translate: none;
+  }
+
+  .hero-depart {
+    animation: none;
+    opacity: 1;
+    scale: 1;
+    filter: none;
+  }
+
+  .parallax {
+    animation: none;
+    translate: none;
+    will-change: auto;
+  }
+
+  .grain::after {
+    display: none;
+  }
+
+  /* The spotlight is a moving light source; hold it still and centred instead
+     of tracking the pointer. */
+  .card::before {
+    transition: none;
+  }
+}

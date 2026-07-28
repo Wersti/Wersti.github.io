@@ -1,0 +1,14 @@
+services:
+  dev:
+    build: .
+    ports:
+      - "4321:4321"
+    volumes:
+      # Source is live-mounted; the anonymous volume keeps the image's
+      # node_modules from being hidden by the host directory.
+      - .:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    stdin_open: true
+    tty: true

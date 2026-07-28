@@ -1,0 +1,91 @@
+---
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { ClientRouter } from 'astro:transitions';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Which build-time OG card to reference. See src/pages/og/[slug].png.ts. */
+  ogSlug?: 'home' | 'projects' | 'contact';
+}
+
+const { title, description, ogSlug = 'home' } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const ogImage = new URL(`/og/${ogSlug}.png`, Astro.site).href;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#0a0f14" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={title} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- Native cross-document view transitions: SPA-feel page changes on a
+         fully static site, no client-side router shipped. -->
+    <ClientRouter />
+  </head>
+
+  <body class="grain min-h-screen antialiased">
+    <a href="#main" class="skip-link">Skip to content</a>
+    <Nav />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+
+    <script>
+      // Card spotlight. One delegated listener on the document rather than one
+      // per card, and the only work per event is writing two custom properties
+      // — no getComputedStyle, no layout read beyond the card's own rect.
+      const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+      function track(e: PointerEvent) {
+        // A coarse pointer has no hover, so tracking it would only mean the
+        // spotlight sticks wherever the last tap landed.
+        if (e.pointerType === 'touch') return;
+
+        const card = (e.target as Element | null)?.closest<HTMLElement>('.card');
+        if (!card) return;
+
+        const r = card.getBoundingClientRect();
+        card.style.setProperty('--spot-x', `${e.clientX - r.left}px`);
+        card.style.setProperty('--spot-y', `${e.clientY - r.top}px`);
+        card.style.setProperty('--spot-opacity', '1');
+      }
+
+      function clear(e: PointerEvent) {
+        const card = (e.target as Element | null)?.closest<HTMLElement>('.card');
+        card?.style.setProperty('--spot-opacity', '0');
+      }
+
+      if (!media.matches) {
+        document.addEventListener('pointermove', track, { passive: true });
+        // pointerout rather than pointerleave: leave does not bubble, so it
+        // cannot be delegated from the document.
+        document.addEventListener('pointerout', clear, { passive: true });
+      }
+    </script>
+  </body>
+</html>

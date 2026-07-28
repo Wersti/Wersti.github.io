@@ -1,0 +1,62 @@
+---
+const links = [
+  { href: '/', label: 'Home' },
+  { href: '/projects/', label: 'Projects' },
+  { href: '/contact/', label: 'Contact' },
+];
+
+// Normalise so "/projects" and "/projects/" both match.
+const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
+---
+
+<header
+  class="sticky top-0 z-50 border-b border-[var(--color-border-subtle)] bg-[color-mix(in_oklab,var(--color-surface)_78%,transparent)] backdrop-blur-xl"
+>
+  <nav class="shell flex items-center justify-between py-4" aria-label="Main">
+    <a
+      href="/"
+      transition:name="wordmark"
+      class="font-mono text-sm font-semibold tracking-widest text-[var(--color-text-primary)] uppercase no-underline"
+    >
+      Wersti<span class="text-[var(--color-text-accent)]">.</span>
+    </a>
+
+    <ul class="flex list-none items-center gap-1">
+      {
+        links.map((link) => {
+          const linkPath = link.href.replace(/\/+$/, '') || '/';
+          const isActive = path === linkPath;
+          return (
+            <li>
+              <a
+                href={link.href}
+                aria-current={isActive ? 'page' : undefined}
+                class:list={[
+                  'relative rounded-lg px-3 py-2 text-sm font-medium no-underline transition-colors duration-200',
+                  isActive
+                    ? 'text-[var(--color-text-primary)]'
+                    : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]',
+                ]}
+              >
+                {/* The active pill is its own element carrying a shared
+                    view-transition name. Exactly one exists per page, so the
+                    browser pairs them across the navigation and slides the
+                    pill to the new link instead of cross-fading two boxes.
+                    It has to be separate from the <a> — naming the link
+                    itself would morph the label text along with it. */}
+                {isActive && (
+                  <span
+                    transition:name="nav-pill"
+                    class="absolute inset-0 -z-10 rounded-lg bg-[var(--color-surface-overlay)]"
+                    aria-hidden="true"
+                  />
+                )}
+                {link.label}
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </nav>
+</header>
