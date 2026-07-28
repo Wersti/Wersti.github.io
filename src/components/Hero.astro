@@ -1,0 +1,142 @@
+---
+import { Image } from 'astro:assets';
+import avatar from '../assets/wersti.png';
+---
+
+<!-- No `overflow-hidden` here, deliberately. `overflow` other than `visible`
+     makes an element a scroll container, and `animation-timeline: view()`
+     resolves against the nearest scroll container ancestor — so clipping this
+     section would measure the descendants' parallax against a box that never
+     scrolls, freezing every layer at mid-progress. The grid layer is masked
+     rather than clipped, and every other layer is inset, so nothing escapes. -->
+<section class="relative">
+  <!-- WebGL canvas. Sits behind content, purely decorative, hidden from AT.
+       The CSS radial gradient underneath is the fallback: if WebGL never
+       loads the hero still looks deliberate. -->
+  <!-- Deepest parallax layer: a faint coordinate grid, barely visible, that
+       drifts slowest. Its only job is to give the depth cue something to act
+       on — parallax with a single layer reads as drift, not depth. Masked to
+       fade out before its edges, so no hard seam appears. -->
+  <div
+    class="parallax pointer-events-none absolute -inset-y-32 inset-x-0 -z-20 opacity-[0.07]"
+    style="--depth: 0.22;
+           background-image:
+             linear-gradient(to right, var(--color-signal-300) 1px, transparent 1px),
+             linear-gradient(to bottom, var(--color-signal-300) 1px, transparent 1px);
+           background-size: 4.5rem 4.5rem;
+           mask-image: radial-gradient(ellipse 65% 60% at 60% 45%, #000, transparent 75%);"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div
+    class="pointer-events-none absolute inset-0 -z-10"
+    aria-hidden="true"
+    style="background: radial-gradient(ellipse 70% 55% at 68% 42%, color-mix(in oklab, var(--color-signal-700) 26%, transparent), transparent 70%);"
+  >
+    <!-- The canvas occupies the right-hand side rather than the full section,
+         and the attractor sits centred within it. Placing it here instead of
+         offsetting the mesh in 3D keeps the shape square to the camera: an
+         off-axis object is foreshortened by perspective, which collapses the
+         butterfly's two lobes into a V. -->
+    <!-- Mid layer: the attractor drifts faster than the grid behind it and
+         slower than the copy in front, which is what produces the depth.
+         The two effects sit on separate elements because both are driven by the
+         `animation` shorthand — put on one element, the later class in the
+         cascade would silently replace the other rather than compose. -->
+    <div class="parallax absolute inset-y-0 right-0 w-full lg:w-[44%]" style="--depth: 0.1;">
+      <div class="hero-depart h-full w-full">
+        <canvas id="attractor" class="h-full w-full opacity-0 transition-opacity duration-1000"
+        ></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="shell grid items-center gap-12 py-24 lg:grid-cols-[1fr_auto] lg:py-36">
+    <!-- Foreground layer. A negative depth moves it *against* the scroll, so it
+         reads as nearest the viewer — the copy leads, the visual trails. -->
+    <div class="parallax" style="--depth: -0.06;">
+      <!-- Small avatar inline with the eyebrow, so the right-hand side stays
+           clear for the attractor rather than the two fighting for space. -->
+      <div class="mb-8 flex items-center gap-4">
+        <Image
+          src={avatar}
+          alt="Portrait of Wersti"
+          width={56}
+          height={56}
+          densities={[1, 2]}
+          format="webp"
+          quality={82}
+          loading="eager"
+          class="size-14 rounded-full border border-[var(--color-border-strong)] object-cover"
+        />
+        <p class="eyebrow">Telematics Engineer · Mathematician</p>
+      </div>
+
+      <h1 class="text-h1 mb-8">
+        Networks, numbers,<br />
+        and <span class="text-[var(--color-text-accent)]">systems</span> that hold up.
+      </h1>
+
+      <p class="text-lead mb-10 max-w-xl text-[var(--color-text-secondary)]">
+        I work across networking, cybersecurity, and high-performance computing —
+        from GPU-accelerated numerics to software on resource-constrained devices.
+      </p>
+
+      <div class="flex flex-wrap gap-4">
+        <a href="/projects/" class="btn btn-primary">
+          Explore projects
+          <span aria-hidden="true">→</span>
+        </a>
+        <a href="/contact/" class="btn btn-ghost">Get in touch</a>
+      </div>
+    </div>
+
+    <!-- Reserves the right-hand column on desktop so the attractor has room of
+         its own. Empty by design; the canvas behind fills it. -->
+    <div class="hidden lg:block lg:w-[26rem]" aria-hidden="true"></div>
+  </div>
+</section>
+
+<script>
+  const canvas = document.getElementById('attractor') as HTMLCanvasElement | null;
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
+
+  function hasWebGL() {
+    try {
+      const c = document.createElement('canvas');
+      return !!(c.getContext('webgl2') || c.getContext('webgl'));
+    } catch {
+      return false;
+    }
+  }
+
+  if (canvas && !prefersReducedMotion && isDesktop && hasWebGL()) {
+    let destroy: (() => void) | undefined;
+
+    // Only pay the ~10 KB once the hero is actually in view. Observe the
+    // parent: the canvas has no intrinsic CSS size of its own yet.
+    const io = new IntersectionObserver(async ([entry]) => {
+      if (!entry.isIntersecting) return;
+      io.disconnect();
+
+      try {
+        const { initAttractor } = await import('../scripts/attractor');
+        destroy = initAttractor(canvas);
+        canvas.classList.remove('opacity-0');
+      } catch (err) {
+        // Fallback gradient is already visible; nothing else to do.
+        console.warn('Attractor failed to initialise:', err);
+      }
+    });
+    io.observe(canvas.parentElement ?? canvas);
+
+    // View transitions reuse the document, so tear down on navigate.
+    document.addEventListener('astro:before-swap', () => {
+      destroy?.();
+      io.disconnect();
+    });
+  }
+</script>

@@ -1,0 +1,76 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+
+const expertise = [
+  {
+    n: '01',
+    title: 'Languages & Systems',
+    body: 'C/C++, Python, MATLAB, Julia, Java — from low-level systems programming through to scientific computing.',
+  },
+  {
+    n: '02',
+    title: 'Networking & Security',
+    body: 'Network protocols, cybersecurity practice, and ethical hacking, approached from the protocol level up.',
+  },
+  {
+    n: '03',
+    title: 'High-Performance Computing',
+    body: 'GPU acceleration for computationally intensive workloads, where the constant factor matters as much as the complexity class.',
+  },
+  {
+    n: '04',
+    title: 'Embedded Systems',
+    body: 'Efficient software for resource-constrained devices and IoT, where memory and power budgets are hard limits.',
+  },
+];
+---
+
+<Base
+  title="Wersti — Telematics Engineer & Mathematician"
+  description="Portfolio of Wersti, a Telematics Engineer and Mathematician working across networking, cybersecurity, GPU computing, and embedded systems."
+>
+  <Hero />
+
+  <section class="shell py-24" aria-labelledby="expertise-heading">
+    <div class="mb-16 max-w-2xl">
+      <p class="eyebrow mb-4">What I work on</p>
+      <h2 id="expertise-heading" class="text-h2 mb-6">Interests &amp; expertise</h2>
+      <p class="text-lead text-[var(--color-text-secondary)]">
+        A background spanning engineering and mathematics means moving between
+        theory and implementation — and caring about both.
+      </p>
+    </div>
+
+    <ul class="grid list-none gap-6 sm:grid-cols-2">
+      {
+        expertise.map((item, i) => (
+          // --i drives the stagger: each card's reveal starts a little further
+          // into the scroll, so the grid cascades instead of snapping in as one.
+          <li class="card reveal-stagger" style={`--i:${i % 2}`}>
+            <span class="font-mono text-xs text-[var(--color-text-accent)]">{item.n}</span>
+            <h3 class="text-h3 mt-4 mb-3">{item.title}</h3>
+            <p class="text-[var(--color-text-secondary)]">{item.body}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="shell py-16">
+    <div
+      class="card reveal flex flex-col items-start justify-between gap-8 border-[var(--color-border-strong)] p-10 sm:flex-row sm:items-center"
+    >
+      <div>
+        <h2 class="text-h3 mb-2">Curious what I've been building?</h2>
+        <p class="text-[var(--color-text-secondary)]">
+          Projects are pulled live from GitHub, most recently updated first.
+        </p>
+      </div>
+      <a href="/projects/" class="btn btn-primary shrink-0">
+        View projects
+        <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </section>
+</Base>

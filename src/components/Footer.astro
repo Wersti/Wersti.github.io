@@ -1,0 +1,35 @@
+---
+const year = new Date().getFullYear();
+
+// No mailto: the contact form is the direct channel, and publishing an address
+// here would only feed scrapers.
+const socials = [
+  { href: 'https://github.com/Wersti', label: 'GitHub' },
+  { href: '/contact/', label: 'Contact' },
+];
+---
+
+<footer class="mt-32 border-t border-[var(--color-border-subtle)] py-12">
+  <div class="shell flex flex-col items-center justify-between gap-6 sm:flex-row">
+    <p class="font-mono text-xs text-[var(--color-text-muted)]">
+      © {year} Wersti — Built with Astro
+    </p>
+    <ul class="flex list-none gap-6">
+      {
+        socials.map((s) => (
+          <li>
+            <a
+              href={s.href}
+              class="font-mono text-xs text-[var(--color-text-secondary)] no-underline transition-colors duration-200 hover:text-[var(--color-text-accent)]"
+              {...s.href.startsWith('http')
+                ? { target: '_blank', rel: 'noopener noreferrer' }
+                : {}}
+            >
+              {s.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</footer>

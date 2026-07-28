@@ -1,0 +1,149 @@
+---
+import Base from '../layouts/Base.astro';
+
+interface Repo {
+  name: string;
+  description: string | null;
+  html_url: string;
+  language: string | null;
+  stargazers_count: number;
+  fork: boolean;
+  archived: boolean;
+  topics?: string[];
+  updated_at: string;
+}
+
+// Fetched at build time rather than in the browser. This fixes three problems
+// the old client-side version had: no unauthenticated rate limit hit by
+// visitors, no "Loading projects..." flash, and the content is in the HTML for
+// crawlers. GITHUB_TOKEN is injected by CI to raise the build-time limit.
+const token = import.meta.env.GITHUB_TOKEN;
+
+let repos: Repo[] = [];
+let fetchFailed = false;
+
+try {
+  const res = await fetch(
+    'https://api.github.com/users/Wersti/repos?sort=updated&per_page=100',
+    {
+      headers: {
+        Accept: 'application/vnd.github+json',
+        'User-Agent': 'wersti-portfolio-build',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    }
+  );
+
+  if (!res.ok) throw new Error(`GitHub API responded ${res.status}`);
+
+  const all: Repo[] = await res.json();
+  repos = all
+    .filter((r) => !r.fork && !r.archived)
+    .sort((a, b) => {
+      // Starred work first, then most recently touched.
+      if (b.stargazers_count !== a.stargazers_count) {
+        return b.stargazers_count - a.stargazers_count;
+      }
+      return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+    });
+} catch (err) {
+  // Never fail the build over this — render a graceful fallback instead.
+  fetchFailed = true;
+  console.warn('[projects] Could not fetch repositories:', err);
+}
+
+const dateFormatter = new Intl.DateTimeFormat('en-GB', {
+  month: 'short',
+  year: 'numeric',
+});
+---
+
+<Base
+  title="Projects — Wersti"
+  description="A selection of public projects by Wersti, spanning networking, scientific computing, embedded systems, and security."
+  ogSlug="projects"
+>
+  <section class="shell py-24">
+    <div class="mb-16 max-w-2xl">
+      <p class="eyebrow mb-4">Selected work</p>
+      <h1 class="text-h1 mb-6">Projects</h1>
+      <p class="text-lead text-[var(--color-text-secondary)]">
+        Public repositories, forks and archives excluded. Pulled from GitHub when
+        this page was built.
+      </p>
+    </div>
+
+    {
+      fetchFailed && (
+        <div class="card border-[var(--color-border-strong)]">
+          <h2 class="text-h3 mb-3">Repositories unavailable</h2>
+          <p class="mb-6 text-[var(--color-text-secondary)]">
+            The project list could not be retrieved at build time.
+          </p>
+          <a
+            href="https://github.com/Wersti"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-primary"
+          >
+            Browse on GitHub
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      )
+    }
+
+    {
+      !fetchFailed && repos.length === 0 && (
+        <p class="text-[var(--color-text-secondary)]">No public repositories yet.</p>
+      )
+    }
+
+    {
+      repos.length > 0 && (
+        <ul class="grid list-none gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {repos.map((repo, i) => (
+            // Stagger across the row (3 columns at lg), so each row cascades
+            // left-to-right rather than every card arriving at once.
+            <li class="card reveal-stagger flex flex-col" style={`--i:${i % 3}`}>
+              <div class="mb-4 flex items-start justify-between gap-3">
+                <h2 class="text-h3 leading-tight">
+                  <a
+                    href={repo.html_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-[var(--color-text-primary)] no-underline transition-colors duration-200 hover:text-[var(--color-text-accent)]"
+                  >
+                    {repo.name}
+                  </a>
+                </h2>
+                {repo.stargazers_count > 0 && (
+                  <span class="shrink-0 font-mono text-xs text-[var(--color-text-muted)]">
+                    ★ {repo.stargazers_count}
+                  </span>
+                )}
+              </div>
+
+              <p class="mb-6 grow text-sm text-[var(--color-text-secondary)]">
+                {repo.description ?? 'No description provided.'}
+              </p>
+
+              <div class="flex items-center gap-4 font-mono text-xs text-[var(--color-text-muted)]">
+                {repo.language && (
+                  <span class="flex items-center gap-1.5">
+                    <span
+                      class="inline-block size-1.5 rounded-full bg-[var(--color-signal-400)]"
+                      aria-hidden="true"
+                    />
+                    {repo.language}
+                  </span>
+                )}
+                <span>{dateFormatter.format(new Date(repo.updated_at))}</span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </section>
+</Base>
