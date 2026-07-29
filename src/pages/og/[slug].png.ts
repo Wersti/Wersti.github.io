@@ -10,12 +10,12 @@ import { renderOgImage } from '../../lib/og';
 
 const CARDS = {
   home: {
-    eyebrow: 'Telematics Engineer · Mathematician',
-    title: 'Networks, numbers, and systems that hold up.',
+    eyebrow: 'Mathematician · Telematics Engineer',
+    title: 'Probability, learning, and systems that hold up.',
   },
   projects: {
     eyebrow: 'Selected work',
-    title: 'Projects — networking, numerics, and embedded systems.',
+    title: 'Projects — machine learning, numerics, and infrastructure.',
   },
   contact: {
     eyebrow: 'Say hello',
