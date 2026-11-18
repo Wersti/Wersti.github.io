@@ -26,11 +26,12 @@ jobs:
         with:
           node-version: 22
 
-      # Installs exactly what package-lock.json pins. The lockfile must list
-      # every platform's native bindings (rolldown, tailwind oxide, ...). If a
-      # build fails with "Cannot find native binding" (npm/cli#4828), regenerate
-      # it from scratch: rm -rf node_modules package-lock.json && npm install
-      - run: npm ci
+      # Use npm install (not npm ci) because npm ci skips optional platform-native
+      # packages that were absent on the machine that generated the lockfile
+      # (npm/cli#4828). Rolldown and Tailwind oxide ship linux-x64-gnu bindings as
+      # optional deps; npm ci silently drops them on macOS-generated lockfiles,
+      # causing "Cannot find native binding" at build time.
+      - run: npm install
 
       - run: npm run build
         env:
