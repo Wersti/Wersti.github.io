@@ -2,6 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
+    branches: [main, redesign-2026]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -25,6 +26,10 @@ jobs:
         with:
           node-version: 22
 
+      # Delete the lockfile before installing. The lockfile is generated on macOS
+      # and npm refuses to install optional platform-native packages (rolldown,
+      # tailwind oxide) that were absent on the generation machine, even with
+      # npm install (npm/cli#4828). Dropping it forces a clean linux-x64 resolve.
       - run: rm -f package-lock.json && npm install
 
       - run: npm run build

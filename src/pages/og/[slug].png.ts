@@ -15,7 +15,7 @@ const CARDS = {
   },
   projects: {
     eyebrow: 'Selected work',
-    title: 'Projects — machine learning, numerics, and infrastructure.',
+    title: 'Things I’ve built, mostly to understand them.',
   },
   contact: {
     eyebrow: 'Say hello',

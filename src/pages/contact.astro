@@ -2,6 +2,10 @@
 import Base from '../layouts/Base.astro';
 
 const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xyzplbgr';
+
+const field =
+  'w-full rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-surface)] px-4 py-3 text-[var(--color-text-primary)] transition-colors duration-200 placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-signal-500)]';
+const labelClass = 'mb-2 block font-mono text-xs tracking-wider text-[var(--color-text-muted)] uppercase';
 ---
 
 <Base
@@ -10,75 +14,39 @@ const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xyzplbgr';
   ogSlug="contact"
 >
   <section class="shell py-24">
-    <div class="grid gap-16 lg:grid-cols-[0.9fr_1.1fr]">
+    <div class="grid gap-16 lg:grid-cols-[1fr_1fr]">
       <div>
-        <p class="eyebrow mb-4">Say hello</p>
-        <h1 class="text-h1 mb-6">Get in touch</h1>
-        <p class="text-lead mb-8 text-[var(--color-text-secondary)]">
-          Open to collaboration, interesting engineering problems, and research
-          conversations. I read everything that arrives here.
+        <p class="eyebrow mb-5">Say hello</p>
+        <h1 class="text-h1 mb-8">Get in <em class="accent-italic">touch.</em></h1>
+        <p class="text-lead mb-8 max-w-md text-[var(--color-text-secondary)]">
+          Machine learning, numerics, quant research, or infrastructure work —
+          if it involves probability or a hard systems problem, write. I read
+          everything that arrives here.
         </p>
         <p class="font-mono text-sm text-[var(--color-text-muted)]">
           Or find me on{' '}
-          <a
-            href="https://github.com/Wersti"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-[var(--color-text-accent)] underline decoration-1 underline-offset-4"
-          >
-            GitHub
-          </a>.
+          <a href="https://github.com/Wersti" target="_blank" rel="noopener noreferrer" class="link">GitHub</a>.
         </p>
       </div>
 
-      <div class="card border-[var(--color-border-strong)] p-8">
+      <div class="card p-8">
         <form id="contact-form" action={FORMSPREE_ENDPOINT} method="POST" novalidate>
           <div class="mb-6">
-            <label for="name" class="mb-2 block font-mono text-xs tracking-wider uppercase">
-              Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              required
-              autocomplete="name"
-              class="w-full rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-surface)] px-4 py-3 text-[var(--color-text-primary)] transition-colors duration-200 placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-signal-500)]"
-              placeholder="Your name"
-            />
+            <label for="name" class={labelClass}>Name</label>
+            <input type="text" id="name" name="name" required autocomplete="name" class={field} placeholder="Your name" />
           </div>
 
           <div class="mb-6">
-            <label for="email" class="mb-2 block font-mono text-xs tracking-wider uppercase">
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              required
-              autocomplete="email"
-              class="w-full rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-surface)] px-4 py-3 text-[var(--color-text-primary)] transition-colors duration-200 placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-signal-500)]"
-              placeholder="you@example.com"
-            />
+            <label for="email" class={labelClass}>Email</label>
+            <input type="email" id="email" name="email" required autocomplete="email" class={field} placeholder="you@example.com" />
           </div>
 
           <div class="mb-6">
-            <label for="message" class="mb-2 block font-mono text-xs tracking-wider uppercase">
-              Message
-            </label>
-            <textarea
-              id="message"
-              name="message"
-              rows="5"
-              required
-              class="w-full resize-y rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-surface)] px-4 py-3 text-[var(--color-text-primary)] transition-colors duration-200 placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-signal-500)]"
-              placeholder="What would you like to talk about?"></textarea>
+            <label for="message" class={labelClass}>Message</label>
+            <textarea id="message" name="message" rows="5" required class:list={[field, 'resize-y']} placeholder="What would you like to talk about?"></textarea>
           </div>
 
-          <!-- Formspree's honeypot field is named _gotcha (single underscore).
-               The previous markup used __gotcha, which Formspree ignores, so
-               the spam trap was silently doing nothing. -->
+          <!-- Formspree honeypot (single underscore). -->
           <div hidden aria-hidden="true">
             <label for="_gotcha">Leave this field empty</label>
             <input type="text" id="_gotcha" name="_gotcha" tabindex="-1" autocomplete="off" />
@@ -88,12 +56,12 @@ const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xyzplbgr';
             <span data-submit-label>Send message</span>
           </button>
 
-          <!-- role="status" so screen readers announce the outcome. -->
           <p
             data-form-feedback
             role="status"
             aria-live="polite"
-            class="mt-4 text-sm text-[var(--color-text-secondary)] empty:mt-0"
+            tabindex="-1"
+            class="mt-4 text-sm empty:mt-0 focus:outline-none"
           >
           </p>
         </form>
@@ -103,12 +71,12 @@ const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xyzplbgr';
 </Base>
 
 <script>
-  // One implementation, in one place. The old site had this logic duplicated in
-  // js/contact.js (never loaded) and inline in contact.html, with the two
-  // versions behaving differently.
-  const form = document.getElementById('contact-form') as HTMLFormElement | null;
+  // Re-bind on every page-load: with the ClientRouter, revisiting this page is
+  // a DOM swap and the module does not run again.
+  document.addEventListener('astro:page-load', () => {
+    const form = document.getElementById('contact-form') as HTMLFormElement | null;
+    if (!form) return;
 
-  if (form) {
     const feedback = form.querySelector<HTMLElement>('[data-form-feedback]');
     const label = form.querySelector<HTMLElement>('[data-submit-label]');
     const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
@@ -122,7 +90,6 @@ const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xyzplbgr';
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
 
-      // Let the browser surface its own field-level messages first.
       if (!form.checkValidity()) {
         form.reportValidity();
         return;
@@ -141,11 +108,10 @@ const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xyzplbgr';
         });
 
         if (response.ok) {
-          // Reset rather than hide the form, so a second message is possible.
           form.reset();
           setFeedback('Thanks — your message is on its way. I’ll reply soon.', true);
+          feedback?.focus();
         } else {
-          // Surface Formspree's own validation messages when it provides them.
           const data = await response.json().catch(() => null);
           const detail = Array.isArray(data?.errors)
             ? data.errors.map((e: { message: string }) => e.message).join(', ')
@@ -153,14 +119,11 @@ const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xyzplbgr';
           setFeedback(detail, false);
         }
       } catch {
-        setFeedback(
-          'Could not reach the server. Check your connection and try again.',
-          false
-        );
+        setFeedback('Could not reach the server. Check your connection and try again.', false);
       } finally {
         if (button) button.disabled = false;
         if (label) label.textContent = originalLabel;
       }
     });
-  }
+  });
 </script>

@@ -16,7 +16,7 @@ const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
     <a
       href="/"
       transition:name="wordmark"
-      class="font-mono text-sm font-semibold tracking-widest text-[var(--color-text-primary)] uppercase no-underline"
+      class="font-[family-name:var(--font-serif)] text-2xl text-[var(--color-text-primary)] no-underline"
     >
       Wersti<span class="text-[var(--color-text-accent)]">.</span>
     </a>
@@ -32,22 +32,18 @@ const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
                 href={link.href}
                 aria-current={isActive ? 'page' : undefined}
                 class:list={[
-                  'relative rounded-lg px-3 py-2 text-sm font-medium no-underline transition-colors duration-200',
+                  'relative rounded-full px-3.5 py-2 text-sm font-medium no-underline transition-colors duration-200',
                   isActive
                     ? 'text-[var(--color-text-primary)]'
                     : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]',
                 ]}
               >
-                {/* The active pill is its own element carrying a shared
-                    view-transition name. Exactly one exists per page, so the
-                    browser pairs them across the navigation and slides the
-                    pill to the new link instead of cross-fading two boxes.
-                    It has to be separate from the <a> — naming the link
-                    itself would morph the label text along with it. */}
+                {/* Separate element with a shared transition name, so the pill
+                    slides between links without morphing the label text. */}
                 {isActive && (
                   <span
                     transition:name="nav-pill"
-                    class="absolute inset-0 -z-10 rounded-lg bg-[var(--color-surface-overlay)]"
+                    class="absolute inset-0 -z-10 rounded-full bg-[var(--color-surface-overlay)]"
                     aria-hidden="true"
                   />
                 )}
