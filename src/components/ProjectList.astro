@@ -1,0 +1,59 @@
+---
+import type { Project } from '../lib/github';
+
+interface Props {
+  projects: Project[];
+  /** Heading level for each project title, so the outline stays valid per page. */
+  as?: 'h2' | 'h3';
+}
+
+const { projects, as: Heading = 'h2' } = Astro.props;
+
+const year = (iso: string) => new Date(iso).getFullYear();
+---
+
+<ol class="project-list list-none border-t border-[var(--color-border-subtle)]">
+  {
+    projects.map((p, i) => (
+      <li class="reveal border-b border-[var(--color-border-subtle)]">
+        <a
+          href={p.html_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="project-row group grid gap-x-10 gap-y-4 py-10 no-underline md:grid-cols-[4rem_1fr_auto]"
+        >
+          <span class="font-mono text-sm text-[var(--color-text-warm)]">
+            {String(i + 1).padStart(2, '0')}
+          </span>
+
+          <div class="max-w-3xl">
+            <p class="eyebrow mb-3">{p.field}</p>
+            <Heading class="text-h3 mb-4 transition-colors duration-200 group-hover:text-[var(--color-text-accent)]">
+              {p.title}
+            </Heading>
+            {p.description && (
+              <p class="mb-5 text-[var(--color-text-secondary)]">{p.description}</p>
+            )}
+            {p.topicsShown.length > 0 && (
+              <ul class="flex list-none flex-wrap gap-x-4 gap-y-1 font-mono text-xs text-[var(--color-text-muted)]" aria-label="Topics">
+                {p.topicsShown.map((t) => <li>#{t}</li>)}
+              </ul>
+            )}
+          </div>
+
+          <div class="flex items-center gap-6 font-mono text-xs text-[var(--color-text-muted)] md:flex-col md:items-end md:justify-between">
+            <span>
+              {p.language ?? '—'} · {year(p.updated_at)}
+            </span>
+            <span
+              class="text-lg text-[var(--color-text-secondary)] transition-transform duration-200 group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-[var(--color-text-accent)]"
+              aria-hidden="true"
+            >
+              ↗
+            </span>
+          </div>
+        </a>
+      </li>
+    ))
+  }
+</ol>

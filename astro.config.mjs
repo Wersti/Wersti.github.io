@@ -5,6 +5,7 @@ import sitemap from '@astrojs/sitemap';
 // User site (Wersti.github.io) serves from the domain root, so no `base` is needed.
 export default defineConfig({
   site: 'https://wersti.github.io',
+  output: 'static',
   integrations: [sitemap()],
   vite: {
     plugins: [tailwindcss()],

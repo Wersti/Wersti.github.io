@@ -1,75 +1,100 @@
 ---
 import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
+import ProjectList from '../components/ProjectList.astro';
+import { getProjects } from '../lib/github';
 
 const expertise = [
   {
-    n: '01',
-    title: 'Machine Learning & AI',
-    body: 'JAX, PyTorch, and TensorFlow applied to real problems — from model design through to training pipelines that survive contact with production.',
+    title: 'Machine learning',
+    tools: 'JAX · PyTorch · TensorFlow',
+    body: 'From model design to training pipelines that survive contact with production.',
   },
   {
-    n: '02',
-    title: 'Probability & Stochastic Processes',
-    body: 'An MSc in Advanced Mathematics behind the modelling: stochastic processes, optimisation, and the statistics that tell signal from noise.',
+    title: 'Probability & stochastic processes',
+    tools: 'MSc Advanced Mathematics',
+    body: 'Stochastic modelling, optimisation, and the statistics that separate signal from noise.',
   },
   {
-    n: '03',
-    title: 'High-Performance Computing',
-    body: 'CUDA and GPU acceleration for computationally intensive workloads, where the constant factor matters as much as the complexity class.',
+    title: 'Quantitative finance & markets',
+    tools: 'Stochastic calculus · Time series',
+    body: 'Where the probability meets real prices: derivatives pricing, risk, and the statistics of returns.',
   },
   {
-    n: '04',
-    title: 'Cloud Infrastructure & Security',
-    body: 'Kubernetes, Terraform, and AWS as infrastructure-as-code, with detection pipelines and tooling written in Python, Go, and Rust.',
+    title: 'High-performance computing',
+    tools: 'CUDA · GPU numerics',
+    body: 'Accelerating heavy workloads, where the constant factor matters as much as the complexity class.',
+  },
+  {
+    title: 'Cloud infrastructure & security',
+    tools: 'Kubernetes · Terraform · AWS · Go · Rust',
+    body: 'Infrastructure as code, plus the detection pipelines and tooling that keep it honest.',
   },
 ];
+
+const { ok, projects } = await getProjects();
+const featured = projects.slice(0, 3);
 ---
 
 <Base
   title="Wersti — Mathematician & Telematics Engineer"
-  description="Portfolio of Wersti, a Mathematician and Telematics Engineer working across machine learning, stochastic modelling, GPU computing, and cloud infrastructure."
+  description="Portfolio of Wersti, a Mathematician and Telematics Engineer working across machine learning, stochastic modelling, quantitative finance, GPU computing, and cloud infrastructure."
 >
   <Hero />
 
   <section class="shell py-24" aria-labelledby="expertise-heading">
-    <div class="mb-16 max-w-2xl">
-      <p class="eyebrow mb-4">What I work on</p>
-      <h2 id="expertise-heading" class="text-h2 mb-6">Interests &amp; expertise</h2>
-      <p class="text-lead text-[var(--color-text-secondary)]">
-        A background spanning mathematics and engineering means moving between
-        theory and implementation — and caring about both.
-      </p>
-    </div>
-
-    <ul class="grid list-none gap-6 sm:grid-cols-2">
-      {
-        expertise.map((item, i) => (
-          // --i drives the stagger: each card's reveal starts a little further
-          // into the scroll, so the grid cascades instead of snapping in as one.
-          <li class="card reveal-stagger" style={`--i:${i % 2}`}>
-            <span class="font-mono text-xs text-[var(--color-text-accent)]">{item.n}</span>
-            <h3 class="text-h3 mt-4 mb-3">{item.title}</h3>
-            <p class="text-[var(--color-text-secondary)]">{item.body}</p>
-          </li>
-        ))
-      }
-    </ul>
-  </section>
-
-  <section class="shell py-16">
-    <div
-      class="card reveal flex flex-col items-start justify-between gap-8 border-[var(--color-border-strong)] p-10 sm:flex-row sm:items-center"
-    >
+    <div class="grid gap-12 lg:grid-cols-[1fr_2fr]">
       <div>
-        <h2 class="text-h3 mb-2">Curious what I've been building?</h2>
+        <p class="eyebrow mb-5">What I work on</p>
+        <h2 id="expertise-heading" class="text-h2 mb-6">
+          Between theory <em class="accent-italic">and</em> implementation.
+        </h2>
         <p class="text-[var(--color-text-secondary)]">
-          Projects are pulled live from GitHub, most recently updated first.
+          A background in mathematics and engineering means caring about both
+          the proof and the production system.
         </p>
       </div>
-      <a href="/projects/" class="btn btn-primary shrink-0">
-        View projects
-        <span aria-hidden="true">→</span>
+
+      <dl class="border-t border-[var(--color-border-subtle)]">
+        {
+          expertise.map((item) => (
+            <div class="reveal grid gap-2 border-b border-[var(--color-border-subtle)] py-8 sm:grid-cols-[1fr_1.4fr] sm:gap-10">
+              <dt>
+                <span class="text-h3 block leading-[1.08] font-[family-name:var(--font-serif)] text-[var(--color-text-primary)]">
+                  {item.title}
+                </span>
+                <span class="mt-2 block font-mono text-xs text-[var(--color-text-muted)]">{item.tools}</span>
+              </dt>
+              <dd class="text-[var(--color-text-secondary)] sm:pt-1">{item.body}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  {
+    ok && featured.length > 0 && (
+      <section class="shell py-24" aria-labelledby="work-heading">
+        <div class="mb-12 flex flex-wrap items-end justify-between gap-6">
+          <div>
+            <p class="eyebrow mb-5">Selected work</p>
+            <h2 id="work-heading" class="text-h2">Recent projects</h2>
+          </div>
+          <a href="/projects/" class="link font-mono text-sm">All projects →</a>
+        </div>
+        <ProjectList projects={featured} as="h3" />
+      </section>
+    )
+  }
+
+  <section class="shell py-24">
+    <div class="reveal max-w-3xl">
+      <h2 class="text-h1 mb-8">
+        Got a model, a market, or a system to untangle? <em class="accent-italic">Let’s talk.</em>
+      </h2>
+      <a href="/contact/" class="btn btn-primary">
+        Get in touch <span aria-hidden="true">→</span>
       </a>
     </div>
   </section>

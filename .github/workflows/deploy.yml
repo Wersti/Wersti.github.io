@@ -2,6 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
+    branches: [main, redesign-2026]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -25,7 +26,7 @@ jobs:
         with:
           node-version: 22
 
-      - run: rm -f package-lock.json && npm install
+      - run: npm ci
 
       - run: npm run build
         env:
