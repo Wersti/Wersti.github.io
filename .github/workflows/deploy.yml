@@ -26,7 +26,10 @@ jobs:
         with:
           node-version: 22
 
-      - run: npm ci
+      # Not `npm ci`: the lockfile is generated in Docker on linux-arm64 and,
+      # due to npm's optional-dependency bug (npm/cli#4828), omits the
+      # linux-x64 native bindings (rolldown) this runner needs.
+      - run: rm -f package-lock.json && npm install
 
       - run: npm run build
         env:
