@@ -26,10 +26,11 @@ jobs:
         with:
           node-version: 22
 
-      # Not `npm ci`: the lockfile is generated in Docker on linux-arm64 and,
-      # due to npm's optional-dependency bug (npm/cli#4828), omits the
-      # linux-x64 native bindings (rolldown) this runner needs.
-      - run: rm -f package-lock.json && npm install
+      # Installs exactly what package-lock.json pins. The lockfile must list
+      # every platform's native bindings (rolldown, tailwind oxide, ...). If a
+      # build fails with "Cannot find native binding" (npm/cli#4828), regenerate
+      # it from scratch: rm -rf node_modules package-lock.json && npm install
+      - run: npm ci
 
       - run: npm run build
         env:
