@@ -26,12 +26,11 @@ jobs:
         with:
           node-version: 22
 
-      # Use npm install (not npm ci) because npm ci skips optional platform-native
-      # packages that were absent on the machine that generated the lockfile
-      # (npm/cli#4828). Rolldown and Tailwind oxide ship linux-x64-gnu bindings as
-      # optional deps; npm ci silently drops them on macOS-generated lockfiles,
-      # causing "Cannot find native binding" at build time.
-      - run: npm install
+      # Delete the lockfile before installing. The lockfile is generated on macOS
+      # and npm refuses to install optional platform-native packages (rolldown,
+      # tailwind oxide) that were absent on the generation machine, even with
+      # npm install (npm/cli#4828). Dropping it forces a clean linux-x64 resolve.
+      - run: rm -f package-lock.json && npm install
 
       - run: npm run build
         env:
